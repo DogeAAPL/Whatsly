@@ -1,37 +1,23 @@
 [
   {
-    "name": "Juan",
-    "phone": "573001112233",
-    "message": "Aquí tienes lo de esta semana.",
-    "folder": "attachments/juan",
-    "active": true
+    "active": true,
+    "name": "Catalina",
+    "phone": "573113145585",
+    "message": "Una prueba del automatizador de envio de mensajes",
+    "folder": "attachments/juan"
   },
   {
+    "active": false,
     "name": "María",
     "phone": "573004445566",
     "message": "Te comparto lo de esta semana.",
-    "folder": "attachments/maria",
-    "active": true
+    "folder": "attachments/maria"
   },
   {
-    "name": "Carlos",
-    "phone": "573007778899",
-    "message": "Aquí va lo de esta semana.",
-    "folder": "attachments/carlos",
-    "active": true
-  },
-  {
+    "active": false,
     "name": "Laura",
     "phone": "573001231234",
     "message": "Te dejo lo de esta semana.",
-    "folder": "attachments/laura",
-    "active": true
-  },
-  {
-    "name": "Andrés",
-    "phone": "573009998877",
-    "message": "Aquí tienes lo de esta semana.",
-    "folder": "attachments/andres",
-    "active": true
+    "folder": "attachments/laura"
   }
 ]
