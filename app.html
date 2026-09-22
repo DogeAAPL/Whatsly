@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programador semanal de WhatsApp</title>
+<style>
+  :root {
+    --ink: #1c2230;
+    --ink-soft: #55607a;
+    --line: #d8dce4;
+    --line-soft: #e9ebf0;
+    --paper: #fbfbfa;
+    --card: #ffffff;
+    --accent: #1f6f5c;
+    --accent-soft: #e4f1ec;
+    --warn: #a34a1f;
+    --warn-soft: #fbeee3;
+    --danger: #a3281f;
+    --danger-soft: #fbe6e4;
+    --bubble: #dcf3d9;
+    --mono: "SF Mono", "Consolas", "Menlo", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 100px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 32px; }
+
+  section { margin-bottom: 28px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .card + .card { margin-top: 14px; }
+  .card.paused { opacity: .6; }
+
+  h2 { font-size: 15px; font-weight: 600; margin: 0 0 14px; }
+  label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+  input[type=text], input[type=password], input[type=time], textarea, select {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 44px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 160px; }
+  .field { margin-bottom: 12px; }
+  .field-error { font-size: 12px; color: var(--warn); margin-top: 3px; }
+
+  button {
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--ink-soft); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { background: #17594a; }
+  button.primary:disabled { background: #9fb8b1; border-color: #9fb8b1; cursor: not-allowed; }
+  button.ghost { border-color: transparent; color: var(--ink-soft); padding: 6px 8px; }
+  button.icon-btn {
+    padding: 4px 8px; font-size: 12.5px; border-color: transparent; color: var(--ink-soft);
+    background: transparent;
+  }
+  button.icon-btn:hover { background: var(--line-soft); color: var(--ink); }
+  button.danger-ghost { border-color: transparent; color: var(--danger); padding: 4px 8px; font-size: 12.5px; }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; padding: 4px 10px; border-radius: 100px;
+    background: var(--line-soft); color: var(--ink-soft);
+  }
+  .status-pill.ok { background: var(--accent-soft); color: var(--accent); }
+  .status-pill.bad { background: var(--warn-soft); color: var(--warn); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .contact-card { position: relative; }
+  .contact-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+  .contact-head h3 { font-size: 15px; margin: 0; font-weight: 600; }
+  .contact-head .phone { font-size: 12.5px; color: var(--ink-soft); font-family: var(--mono); }
+  .contact-name-row { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .contact-tools { display: flex; align-items: center; gap: 2px; }
+  .contact-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+  .switch { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-track {
+    position: absolute; inset: 0; background: var(--line); border-radius: 20px; cursor: pointer; transition: background .15s;
+  }
+  .switch-track::before {
+    content: ''; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px;
+    background: #fff; border-radius: 50%; transition: transform .15s;
+  }
+  .switch input:checked + .switch-track { background: var(--accent); }
+  .switch input:checked + .switch-track::before { transform: translateX(15px); }
+  .active-label { font-size: 11.5px; color: var(--ink-soft); }
+
+  .dropzone {
+    border: 1.5px dashed var(--line);
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .dropzone.drag { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .dropzone input { display: none; }
+
+  .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .file-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; padding: 6px 10px;
+    background: var(--line-soft); border-radius: 6px;
+  }
+  .file-row.new { background: var(--accent-soft); }
+  .file-row.remove { background: var(--warn-soft); opacity: .7; }
+  .file-row.remove .file-name { text-decoration: line-through; }
+  .file-row.oversize { outline: 1.5px solid var(--danger); }
+  .file-thumb {
+    width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0;
+    background: #fff; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--ink-soft); overflow: hidden;
+  }
+  .file-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .file-thumb button { border: none; background: none; padding: 0; font-size: 9.5px; color: var(--accent); cursor: pointer; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-family: var(--mono); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .file-warn { font-size: 11.5px; color: var(--danger); }
+  .empty-note { font-size: 12.5px; color: var(--ink-soft); font-style: italic; margin-top: 8px; }
+
+  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+  .day-btn {
+    padding: 8px 0; text-align: center; font-size: 12.5px;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer;
+  }
+  .day-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  #log {
+    font-family: var(--mono); font-size: 12px; background: #14181f; color: #cdd6e3;
+    border-radius: 8px; padding: 14px 16px; max-height: 220px; overflow-y: auto;
+    white-space: pre-wrap; display: none;
+  }
+  #log.show { display: block; }
+  #log .err { color: #f2a5a0; }
+  #log .ok { color: #9fe0c1; }
+
+  .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+  .help { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+  .help a { color: var(--accent); }
+  .locked-note {
+    font-size: 13px; color: var(--ink-soft); background: var(--line-soft);
+    border-radius: 8px; padding: 14px 16px;
+  }
+
+  .preview-toggle { font-size: 12px; margin: 6px 0 0; }
+  .bubble-wrap { display: flex; justify-content: flex-end; margin-top: 10px; }
+  .bubble {
+    background: var(--bubble); border-radius: 10px 10px 2px 10px; padding: 8px 10px;
+    max-width: 260px; font-size: 13px; color: #1a2e1a;
+  }
+  .bubble-attachment {
+    background: rgba(255,255,255,.6); border-radius: 6px; padding: 8px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px; font-size: 12px;
+  }
+  .bubble-text { white-space: pre-wrap; word-break: break-word; }
+  .bubble-meta { font-size: 10.5px; color: #4d6b4d; text-align: right; margin-top: 4px; }
+
+  .token-banner {
+    font-size: 12.5px; padding: 8px 12px; border-radius: 6px; margin-top: 10px;
+    background: var(--line-soft); color: var(--ink-soft);
+  }
+  .token-banner.warn { background: var(--warn-soft); color: var(--warn); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Programador semanal de WhatsApp</h1>
+  <p class="sub">Arrastra los archivos de cada contacto, ajusta el mensaje y la hora, y sube todo a tu repositorio con un clic.</p>
+
+  <section>
+    <div class="card">
+      <h2>Conexión con GitHub</h2>
+      <div class="row">
+        <div class="field">
+          <label for="gh-owner">Usuario / organización</label>
+          <input type="text" id="gh-owner" placeholder="tu-usuario-github">
+        </div>
+        <div class="field">
+          <label for="gh-repo">Repositorio</label>
+          <input type="text" id="gh-repo" placeholder="whatsapp-weekly-sender">
+        </div>
+        <div class="field">
+          <label for="gh-branch">Rama</label>
+          <input type="text" id="gh-branch" placeholder="main" value="main">
+        </div>
+      </div>
+      <div class="field">
+        <label for="gh-token">Token de acceso personal (fine-grained, permiso Contents: Read and write, solo sobre este repo)</label>
+        <input type="password" id="gh-token" placeholder="github_pat_...">
+      </div>
+      <div class="top-actions">
+        <button class="primary" id="btn-connect">Conectar y cargar</button>
+        <span class="status-pill" id="conn-status"><span class="dot"></span> sin conectar</span>
+      </div>
+      <p class="help">
+        El token solo se guarda en este navegador, en tu computador — nunca se envía a ningún lado excepto a la API de GitHub.
+        ¿No tienes uno? Créalo en
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>,
+        elígelo tipo <em>Fine-grained</em>, limitado a este repositorio, con permiso <em>Contents: Read and write</em>.
+      </p>
+      <div class="token-banner" id="token-banner" style="display:none"></div>
+    </div>
+  </section>
+
+  <section id="section-schedule" style="display:none">
+    <div class="card">
+      <h2>Horario de envío (hora Colombia)</h2>
+      <div class="day-grid" id="day-grid"></div>
+      <div class="row">
+        <div class="field" style="max-width:160px">
+          <label for="send-time">Hora</label>
+          <input type="time" id="send-time" value="08:00">
+        </div>
+      </div>
+      <p class="help" id="cron-preview"></p>
+    </div>
+  </section>
+
+  <section id="section-contacts" style="display:none">
+    <div id="contacts-container"></div>
+    <button id="btn-add-contact" style="margin-top:4px">+ Agregar contacto</button>
+  </section>
+
+  <section id="section-save" style="display:none">
+    <div class="card">
+      <div class="top-actions">
+        <button class="primary" id="btn-save">Guardar y subir a GitHub</button>
+        <button id="btn-reload">Descartar cambios y recargar</button>
+        <span class="status-pill" id="save-status"><span class="dot"></span> sin cambios pendientes</span>
+      </div>
+      <div id="log"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const state = {
+  owner: '', repo: '', branch: 'main', token: '',
+  contacts: [],          // [{name, phone, message, folder, active}]
+  existingFiles: {},     // { folder: [ {path, name, sha} ] }
+  stagedNew: {},         // { folder: [ File, ... ] }
+  stagedRemove: {},      // { folder: Set(path) }
+  workflowSha: null,
+  workflowRaw: '',
+  dirty: false,
+};
+
+const thumbCache = new Map(); // sha -> dataURL (solo imágenes)
+
+const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+let selectedDay = 0; // 0 = lunes ... 6 = domingo
+
+const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+const VIDEO_EXT = ['.mp4', '.3gp', '.mov'];
+const SIZE_LIMITS = { image: 5 * 1024 * 1024, video: 16 * 1024 * 1024, document: 100 * 1024 * 1024 };
+const SIZE_LABEL = { image: '5 MB', video: '16 MB', document: '100 MB' };
+
+function classify(filename) {
+  const ext = ('.' + filename.split('.').pop()).toLowerCase();
+  if (IMAGE_EXT.includes(ext)) return 'image';
+  if (VIDEO_EXT.includes(ext)) return 'video';
+  return 'document';
+}
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+function log(msg, kind) {
+  const box = document.getElementById('log');
+  box.classList.add('show');
+  const line = document.createElement('div');
+  if (kind) line.className = kind;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setConnStatus(ok, text) {
+  const pill = document.getElementById('conn-status');
+  pill.className = 'status-pill ' + (ok ? 'ok' : 'bad');
+  pill.innerHTML = '<span class="dot"></span> ' + text;
+}
+
+function markDirty() {
+  state.dirty = true;
+  const pill = document.getElementById('save-status');
+  pill.className = 'status-pill bad';
+  pill.innerHTML = '<span class="dot"></span> cambios sin subir';
+}
+
+function clearDirty() {
+  state.dirty = false;
+  const pill = document.getElementById('save-status');
+  pill.className = 'status-pill ok';
+  pill.innerHTML = '<span class="dot"></span> todo subido';
+}
+
+// ---------- GitHub API helpers ----------
+
+async function gh(path, opts = {}) {
+  const res = await fetch('https://api.github.com' + path, {
+    ...opts,
+    headers: {
+      'Authorization': 'Bearer ' + state.token,
+      'Accept': 'application/vnd.github+json',
+      ...(opts.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+
+  const expiry = res.headers.get('github-authentication-token-expiration');
+  if (expiry) updateTokenBanner(expiry);
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`${opts.method || 'GET'} ${path} -> ${res.status}: ${text.slice(0, 300)}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function updateTokenBanner(expiryStr) {
+  const banner = document.getElementById('token-banner');
+  const expiryDate = new Date(expiryStr.replace(' UTC', 'Z').replace(' ', 'T'));
+  if (isNaN(expiryDate.getTime())) return;
+  const daysLeft = Math.round((expiryDate - new Date()) / 86400000);
+  banner.style.display = '';
+  if (daysLeft <= 14) {
+    banner.className = 'token-banner warn';
+    banner.textContent = `Tu token vence en ${daysLeft} día(s) (${expiryDate.toLocaleDateString('es-CO')}) — genera uno nuevo antes de esa fecha o el envío semanal dejará de subirse.`;
+  } else {
+    banner.className = 'token-banner';
+    banner.textContent = `Tu token vence el ${expiryDate.toLocaleDateString('es-CO')}.`;
+  }
+}
+
+function b64ToUtf8(b64) {
+  const bin = atob(b64.replace(/\n/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+function utf8ToB64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+function fileToB64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function humanSize(bytes) {
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// ---------- Load current repo state ----------
+
+async function loadFromGithub() {
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo = document.getElementById('gh-repo').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  const token = document.getElementById('gh-token').value.trim();
+
+  if (!owner || !repo || !token) {
+    setConnStatus(false, 'faltan datos');
+    return;
+  }
+
+  state.owner = owner; state.repo = repo; state.branch = branch; state.token = token;
+  localStorage.setItem('wa-scheduler-config', JSON.stringify({ owner, repo, branch, token }));
+
+  setConnStatus(false, 'conectando…');
+  try {
+    const ref = await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`);
+    const commit = await gh(`/repos/${owner}/${repo}/git/commits/${ref.object.sha}`);
+    const tree = await gh(`/repos/${owner}/${repo}/git/trees/${commit.tree.sha}?recursive=1`);
+
+    const contactsEntry = tree.tree.find(t => t.path === 'contacts.json');
+    if (contactsEntry) {
+      const blob = await gh(`/repos/${owner}/${repo}/git/blobs/${contactsEntry.sha}`);
+      state.contacts = JSON.parse(b64ToUtf8(blob.content)).map(c => ({ active: true, ...c }));
+    } else {
+      state.contacts = [];
+    }
+
+    const wfPath = '.github/workflows/weekly-whatsapp.yml';
+    const wfEntry = tree.tree.find(t => t.path === wfPath);
+    if (wfEntry) {
+      const blob = await gh(`/repos/${owner}/${repo}/git/blobs/${wfEntry.sha}`);
+      state.workflowRaw = b64ToUtf8(blob.content);
+      state.workflowSha = wfEntry.sha;
+      prefillScheduleFromCron(state.workflowRaw);
+    }
+
+    state.existingFiles = {};
+    tree.tree
+      .filter(t => t.type === 'blob' && t.path.startsWith('attachments/'))
+      .forEach(t => {
+        const parts = t.path.split('/');
+        if (parts.length !== 3) return;
+        const folder = 'attachments/' + parts[1];
+        if (!state.existingFiles[folder]) state.existingFiles[folder] = [];
+        state.existingFiles[folder].push({ path: t.path, name: parts[2], sha: t.sha });
+      });
+
+    state.stagedNew = {}; state.stagedRemove = {};
+
+    setConnStatus(true, `conectado a ${owner}/${repo}@${branch}`);
+    document.getElementById('section-schedule').style.display = '';
+    document.getElementById('section-contacts').style.display = '';
+    document.getElementById('section-save').style.display = '';
+    clearDirty();
+    renderContacts();
+  } catch (err) {
+    setConnStatus(false, 'error de conexión');
+    log('Error al conectar: ' + err.message, 'err');
+  }
+}
+
+// ---------- Schedule (day + time -> cron) ----------
+
+function renderDayGrid() {
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+  DAY_NAMES.forEach((name, idx) => {
+    const btn = el('button', 'day-btn' + (idx === selectedDay ? ' active' : ''), name);
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      selectedDay = idx;
+      renderDayGrid();
+      updateCronPreview();
+      markDirty();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function localToCron(dayIdx, hh, mm) {
+  // Colombia = UTC-5 todo el año (sin horario de verano) -> UTC = hora local + 5
+  let utcHour = hh + 5;
+  let dayShift = 0;
+  if (utcHour >= 24) { utcHour -= 24; dayShift = 1; }
+  const newDayIdx = ((dayIdx + dayShift) % 7 + 7) % 7; // 0=lunes..6=domingo
+  const cronDow = (newDayIdx + 1) % 7; // cron: 0=domingo..6=sábado
+  return `${mm} ${utcHour} * * ${cronDow}`;
+}
+
+function cronToLocal(cronDow, utcHour, mm) {
+  // inverso de localToCron -> hora local = UTC - 5
+  const dayIdx = (cronDow + 6) % 7; // 0=lunes..6=domingo
+  let localHour = utcHour - 5;
+  let dayShift = 0;
+  if (localHour < 0) { localHour += 24; dayShift = -1; }
+  const newDayIdx = ((dayIdx + dayShift) % 7 + 7) % 7;
+  return { dayIdx: newDayIdx, hh: localHour, mm };
+}
+
+function prefillScheduleFromCron(yaml) {
+  const m = yaml.match(/cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+(\d+)"/);
+  if (!m) return;
+  const mm = parseInt(m[1], 10), hh = parseInt(m[2], 10), dow = parseInt(m[3], 10);
+  const local = cronToLocal(dow, hh, mm);
+  selectedDay = local.dayIdx;
+  document.getElementById('send-time').value =
+    String(local.hh).padStart(2, '0') + ':' + String(local.mm).padStart(2, '0');
+  renderDayGrid();
+  updateCronPreview();
+}
+
+function updateCronPreview() {
+  const t = document.getElementById('send-time').value || '08:00';
+  const [hh, mm] = t.split(':').map(Number);
+  const cron = localToCron(selectedDay, hh, mm);
+  document.getElementById('cron-preview').textContent =
+    `Se enviará cada ${DAY_NAMES[selectedDay]} a las ${t} (hora Colombia) — cron UTC: ${cron}`;
+}
+
+document.getElementById('send-time').addEventListener('change', () => { updateCronPreview(); markDirty(); });
+
+// ---------- Contacts UI ----------
+
+function firstActiveAttachment(contact) {
+  const news = (state.stagedNew[contact.folder] || []);
+  if (news.length) return { name: news[0].name, kind: classify(news[0].name) };
+  const removeSet = state.stagedRemove[contact.folder] || new Set();
+  const existing = (state.existingFiles[contact.folder] || []).filter(f => !removeSet.has(f.path));
+  if (existing.length) return { name: existing[0].name, kind: classify(existing[0].name) };
+  return null;
+}
+
+function renderBubble(contact, bubbleEl) {
+  const att = firstActiveAttachment(contact);
+  bubbleEl.innerHTML = '';
+  if (att) {
+    const box = el('div', 'bubble-attachment');
+    box.appendChild(el('span', '', att.kind === 'image' ? 'Foto' : att.kind === 'video' ? 'Video' : 'Documento'));
+    box.appendChild(el('span', 'file-name', att.name));
+    bubbleEl.appendChild(box);
+  }
+  const txt = el('div', 'bubble-text', (contact.message || '').replace(/</g, '&lt;') || '(sin texto)');
+  bubbleEl.appendChild(txt);
+  bubbleEl.appendChild(el('div', 'bubble-meta', '8:00 a. m. ✓✓'));
+}
+
+function contactCard(contact) {
+  const card = el('div', 'card contact-card' + (contact.active === false ? ' paused' : ''));
+
+  const head = el('div', 'contact-head');
+
+  const nameRow = el('div', 'contact-name-row');
+  const nameInput = el('input');
+  nameInput.type = 'text'; nameInput.value = contact.name; nameInput.style.fontWeight = '600';
+  nameInput.style.border = 'none'; nameInput.style.padding = '2px 0'; nameInput.style.fontSize = '15px';
+  nameInput.addEventListener('input', () => { contact.name = nameInput.value; markDirty(); });
+  nameRow.appendChild(nameInput);
+  head.appendChild(nameRow);
+
+  const tools = el('div', 'contact-tools');
+  const upBtn = el('button', 'icon-btn', '↑'); upBtn.title = 'Mover arriba';
+  const downBtn = el('button', 'icon-btn', '↓'); downBtn.title = 'Mover abajo';
+  const dupBtn = el('button', 'icon-btn', 'Duplicar');
+  const delBtn = el('button', 'icon-btn', 'Eliminar'); delBtn.style.color = 'var(--danger)';
+  upBtn.addEventListener('click', () => moveContact(contact, -1));
+  downBtn.addEventListener('click', () => moveContact(contact, 1));
+  dupBtn.addEventListener('click', () => duplicateContact(contact));
+  delBtn.addEventListener('click', () => deleteContact(contact));
+  [upBtn, downBtn, dupBtn, delBtn].forEach(b => tools.appendChild(b));
+  head.appendChild(tools);
+
+  const side = el('div', 'contact-side');
+  const switchWrap = el('label', 'switch');
+  const cb = el('input'); cb.type = 'checkbox'; cb.checked = contact.active !== false;
+  cb.addEventListener('change', () => {
+    contact.active = cb.checked;
+    card.classList.toggle('paused', !cb.checked);
+    activeLabel.textContent = cb.checked ? 'Activo' : 'Pausado';
+    markDirty();
+  });
+  switchWrap.appendChild(cb);
+  switchWrap.appendChild(el('span', 'switch-track'));
+  side.appendChild(switchWrap);
+  const activeLabel = el('span', 'active-label', contact.active !== false ? 'Activo' : 'Pausado');
+  side.appendChild(activeLabel);
+  const phoneInput = el('input');
+  phoneInput.type = 'text'; phoneInput.value = contact.phone;
+  phoneInput.style.border = 'none'; phoneInput.style.textAlign = 'right'; phoneInput.style.fontFamily = 'var(--mono)';
+  phoneInput.style.fontSize = '12.5px'; phoneInput.style.color = 'var(--ink-soft)'; phoneInput.style.width = '140px';
+  const phoneErr = el('div', 'field-error');
+  function validatePhone() {
+    const ok = /^\d{10,15}$/.test(phoneInput.value.trim());
+    phoneErr.textContent = ok ? '' : 'Solo dígitos, con código de país (10-15 números)';
+    return ok;
+  }
+  phoneInput.addEventListener('input', () => { contact.phone = phoneInput.value; validatePhone(); markDirty(); });
+  validatePhone();
+  side.appendChild(phoneInput);
+  side.appendChild(phoneErr);
+  head.appendChild(side);
+
+  card.appendChild(head);
+
+  const msgField = el('div', 'field');
+  msgField.appendChild(el('label', '', 'Mensaje de esta semana'));
+  const textarea = el('textarea');
+  textarea.value = contact.message || '';
+  card.appendChild(msgField);
+  msgField.appendChild(textarea);
+
+  const previewToggle = el('a', 'preview-toggle', 'Ver vista previa del mensaje');
+  previewToggle.href = '#'; previewToggle.style.cursor = 'pointer'; previewToggle.style.color = 'var(--accent)';
+  const bubbleWrap = el('div', 'bubble-wrap'); bubbleWrap.style.display = 'none';
+  const bubble = el('div', 'bubble');
+  bubbleWrap.appendChild(bubble);
+  previewToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    const showing = bubbleWrap.style.display !== 'none';
+    bubbleWrap.style.display = showing ? 'none' : 'flex';
+    previewToggle.textContent = showing ? 'Ver vista previa del mensaje' : 'Ocultar vista previa';
+    if (!showing) renderBubble(contact, bubble);
+  });
+  textarea.addEventListener('input', () => {
+    contact.message = textarea.value; markDirty();
+    if (bubbleWrap.style.display !== 'none') renderBubble(contact, bubble);
+  });
+  msgField.appendChild(previewToggle);
+  msgField.appendChild(bubbleWrap);
+
+  card.appendChild(el('label', '', 'Fotos / videos / documentos de esta semana'));
+
+  const dz = el('div', 'dropzone', 'Arrastra archivos aquí, o haz clic para elegir');
+  const fileInput = el('input');
+  fileInput.type = 'file'; fileInput.multiple = true;
+  dz.appendChild(fileInput);
+  dz.addEventListener('click', () => fileInput.click());
+  ['dragenter', 'dragover'].forEach(evt =>
+    dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(evt =>
+    dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+
+  const fileList = el('div', 'file-list');
+
+  dz.addEventListener('drop', e => addFiles(contact, e.dataTransfer.files, fileList, bubbleWrap, bubble));
+  fileInput.addEventListener('change', () => addFiles(contact, fileInput.files, fileList, bubbleWrap, bubble));
+  card.appendChild(dz);
+  card.appendChild(fileList);
+  renderFileList(contact, fileList, bubbleWrap, bubble);
+
+  return card;
+}
+
+function addFiles(contact, fileListObj, container, bubbleWrap, bubble) {
+  const folder = contact.folder;
+  if (!state.stagedNew[folder]) state.stagedNew[folder] = [];
+  Array.from(fileListObj).forEach(f => state.stagedNew[folder].push(f));
+  markDirty();
+  renderFileList(contact, container, bubbleWrap, bubble);
+}
+
+function renderFileList(contact, container, bubbleWrap, bubble) {
+  const folder = contact.folder;
+  container.innerHTML = '';
+  const existing = state.existingFiles[folder] || [];
+  const removeSet = state.stagedRemove[folder] || new Set();
+  const news = state.stagedNew[folder] || [];
+
+  if (existing.length === 0 && news.length === 0) {
+    container.appendChild(el('div', 'empty-note', 'Sin archivos esta semana — no se enviará nada a este contacto.'));
+    if (bubbleWrap.style.display !== 'none') renderBubble(contact, bubble);
+    return;
+  }
+
+  existing.forEach(f => {
+    const marked = removeSet.has(f.path);
+    const kind = classify(f.name);
+    const row = el('div', 'file-row' + (marked ? ' remove' : ''));
+
+    const thumb = el('div', 'file-thumb', kind === 'image' ? 'IMG' : kind === 'video' ? 'VID' : 'DOC');
+    if (kind === 'image' && !marked) {
+      if (thumbCache.has(f.sha)) {
+        thumb.innerHTML = '';
+        const img = el('img'); img.src = thumbCache.get(f.sha);
+        thumb.appendChild(img);
+      } else {
+        thumb.innerHTML = '';
+        const btn = el('button', '', 'ver');
+        btn.addEventListener('click', async () => {
+          btn.textContent = '…';
+          try {
+            const blob = await gh(`/repos/${state.owner}/${state.repo}/git/blobs/${f.sha}`);
+            const dataUrl = 'data:image/*;base64,' + blob.content.replace(/\n/g, '');
+            thumbCache.set(f.sha, dataUrl);
+            thumb.innerHTML = '';
+            const img = el('img'); img.src = dataUrl;
+            thumb.appendChild(img);
+          } catch (e) { btn.textContent = 'error'; }
+        });
+        thumb.appendChild(btn);
+      }
+    }
+
+    const info = el('div', 'file-info');
+    info.appendChild(el('span', 'file-name', f.name));
+    row.appendChild(thumb);
+    row.appendChild(info);
+
+    const btn = el('button', 'danger-ghost', marked ? 'deshacer' : 'quitar');
+    btn.addEventListener('click', () => {
+      if (!state.stagedRemove[folder]) state.stagedRemove[folder] = new Set();
+      if (state.stagedRemove[folder].has(f.path)) state.stagedRemove[folder].delete(f.path);
+      else state.stagedRemove[folder].add(f.path);
+      markDirty();
+      renderFileList(contact, container, bubbleWrap, bubble);
+    });
+    row.appendChild(btn);
+    container.appendChild(row);
+  });
+
+  news.forEach((f, i) => {
+    const kind = classify(f.name);
+    const oversized = f.size > SIZE_LIMITS[kind];
+    const row = el('div', 'file-row new' + (oversized ? ' oversize' : ''));
+
+    const thumb = el('div', 'file-thumb');
+    if (kind === 'image') {
+      const img = el('img'); img.src = URL.createObjectURL(f);
+      thumb.appendChild(img);
+    } else {
+      thumb.textContent = kind === 'video' ? 'VID' : 'DOC';
+    }
+    row.appendChild(thumb);
+
+    const info = el('div', 'file-info');
+    info.appendChild(el('span', 'file-name', f.name + ' (nuevo, ' + humanSize(f.size) + ')'));
+    if (oversized) {
+      info.appendChild(el('span', 'file-warn', `Supera el límite de WhatsApp para ${kind === 'image' ? 'imágenes' : kind === 'video' ? 'videos' : 'documentos'} (${SIZE_LABEL[kind]}) — es probable que el envío falle.`));
+    }
+    row.appendChild(info);
+
+    const btn = el('button', 'danger-ghost', 'quitar');
+    btn.addEventListener('click', () => {
+      news.splice(i, 1);
+      markDirty();
+      renderFileList(contact, container, bubbleWrap, bubble);
+    });
+    row.appendChild(btn);
+    container.appendChild(row);
+  });
+
+  if (bubbleWrap.style.display !== 'none') renderBubble(contact, bubble);
+}
+
+function renderContacts() {
+  const container = document.getElementById('contacts-container');
+  container.innerHTML = '';
+  state.contacts.forEach(c => container.appendChild(contactCard(c)));
+}
+
+function moveContact(contact, delta) {
+  const idx = state.contacts.indexOf(contact);
+  const newIdx = idx + delta;
+  if (newIdx < 0 || newIdx >= state.contacts.length) return;
+  state.contacts.splice(idx, 1);
+  state.contacts.splice(newIdx, 0, contact);
+  markDirty();
+  renderContacts();
+}
+
+function slug(name) {
+  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'contacto';
+}
+
+function duplicateContact(contact) {
+  let base = slug(contact.name) + '_copia';
+  let folder = 'attachments/' + base;
+  let n = 2;
+  while (state.contacts.some(c => c.folder === folder)) {
+    folder = 'attachments/' + base + '_' + n; n++;
+  }
+  const copy = { ...contact, name: contact.name + ' (copia)', folder };
+  const idx = state.contacts.indexOf(contact);
+  state.contacts.splice(idx + 1, 0, copy);
+  state.existingFiles[folder] = [];
+  log(`Se duplicó "${contact.name}" como "${copy.name}". Los archivos no se duplican — agrégalos de nuevo si hace falta.`);
+  markDirty();
+  renderContacts();
+}
+
+function deleteContact(contact) {
+  const files = state.existingFiles[contact.folder] || [];
+  const alsoDeleteFiles = files.length > 0 &&
+    confirm(`¿Eliminar también los ${files.length} archivo(s) guardados de "${contact.name}" en el repositorio? Cancelar los deja huérfanos (no se borran, pero tampoco se usan).`);
+  if (!confirm(`¿Eliminar a "${contact.name}" de la lista de envíos?`)) return;
+  if (alsoDeleteFiles) {
+    if (!state.stagedRemove[contact.folder]) state.stagedRemove[contact.folder] = new Set();
+    files.forEach(f => state.stagedRemove[contact.folder].add(f.path));
+  }
+  state.contacts = state.contacts.filter(c => c !== contact);
+  markDirty();
+  renderContacts();
+}
+
+document.getElementById('btn-add-contact').addEventListener('click', () => {
+  const n = state.contacts.length + 1;
+  const folder = 'attachments/contacto_' + n;
+  state.contacts.push({ name: 'Nuevo contacto', phone: '57', message: '', folder, active: true });
+  state.existingFiles[folder] = [];
+  markDirty();
+  renderContacts();
+});
+
+document.getElementById('btn-reload').addEventListener('click', () => {
+  if (state.dirty && !confirm('Tienes cambios sin subir. ¿Descartarlos y recargar desde GitHub?')) return;
+  loadFromGithub();
+});
+
+// ---------- Save (Git Data API: blobs -> tree -> commit -> ref) ----------
+
+async function saveToGithub() {
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('log').classList.add('show');
+  try {
+    log('Leyendo el último commit de la rama…');
+    const ref = await gh(`/repos/${state.owner}/${state.repo}/git/refs/heads/${state.branch}`);
+    const baseCommitSha = ref.object.sha;
+    const commit = await gh(`/repos/${state.owner}/${state.repo}/git/commits/${baseCommitSha}`);
+    const baseTreeSha = commit.tree.sha;
+
+    const treeEntries = [];
+
+    for (const folder of Object.keys(state.stagedNew)) {
+      for (const file of state.stagedNew[folder]) {
+        log(`Subiendo ${file.name}…`);
+        const content = await fileToB64(file);
+        const blob = await gh(`/repos/${state.owner}/${state.repo}/git/blobs`, {
+          method: 'POST',
+          body: JSON.stringify({ content, encoding: 'base64' }),
+        });
+        treeEntries.push({ path: `${folder}/${file.name}`, mode: '100644', type: 'blob', sha: blob.sha });
+      }
+    }
+
+    for (const folder of Object.keys(state.stagedRemove)) {
+      for (const path of state.stagedRemove[folder]) {
+        treeEntries.push({ path, mode: '100644', type: 'blob', sha: null });
+      }
+    }
+
+    const contactsJson = JSON.stringify(state.contacts, null, 2) + '\n';
+    treeEntries.push({ path: 'contacts.json', mode: '100644', type: 'blob', content: contactsJson });
+
+    const t = document.getElementById('send-time').value || '08:00';
+    const [hh, mm] = t.split(':').map(Number);
+    const cron = localToCron(selectedDay, hh, mm);
+    const newWorkflow = state.workflowRaw.replace(/cron:\s*"[^"]+"/, `cron: "${cron}"`);
+    if (state.workflowRaw) {
+      treeEntries.push({ path: '.github/workflows/weekly-whatsapp.yml', mode: '100644', type: 'blob', content: newWorkflow });
+    }
+
+    if (treeEntries.length === 0) {
+      log('No hay cambios que subir.');
+      btn.disabled = false;
+      return;
+    }
+
+    log('Creando el árbol con los cambios…');
+    const newTree = await gh(`/repos/${state.owner}/${state.repo}/git/trees`, {
+      method: 'POST',
+      body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
+    });
+
+    log('Creando el commit…');
+    const newCommit = await gh(`/repos/${state.owner}/${state.repo}/git/commits`, {
+      method: 'POST',
+      body: JSON.stringify({
+        message: `Actualización semanal (${new Date().toISOString().slice(0, 10)})`,
+        tree: newTree.sha,
+        parents: [baseCommitSha],
+      }),
+    });
+
+    log('Actualizando la rama…');
+    await gh(`/repos/${state.owner}/${state.repo}/git/refs/heads/${state.branch}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ sha: newCommit.sha }),
+    });
+
+    log('Listo. Todo quedó subido.', 'ok');
+    clearDirty();
+    await loadFromGithub();
+  } catch (err) {
+    log('Error al guardar: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('btn-save').addEventListener('click', saveToGithub);
+document.getElementById('btn-connect').addEventListener('click', loadFromGithub);
+
+// ---------- Restaurar configuración guardada ----------
+
+(function restore() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('wa-scheduler-config') || 'null');
+    if (saved) {
+      document.getElementById('gh-owner').value = saved.owner || '';
+      document.getElementById('gh-repo').value = saved.repo || '';
+      document.getElementById('gh-branch').value = saved.branch || 'main';
+      document.getElementById('gh-token').value = saved.token || '';
+    }
+  } catch (e) { /* ignore */ }
+  renderDayGrid();
+  updateCronPreview();
+})();
+</script>
+</body>
+</html>
