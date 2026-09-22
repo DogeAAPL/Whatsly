@@ -4,125 +4,232 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Programador semanal de WhatsApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1c2230;
-    --ink-soft: #55607a;
-    --line: #d8dce4;
-    --line-soft: #e9ebf0;
-    --paper: #fbfbfa;
+    --ink: #1b2130;
+    --ink-soft: #5b6478;
+    --ink-faint: #8991a3;
+    --line: #d9dce3;
+    --line-soft: #eef0f3;
+    --paper: #f6f5f2;
     --card: #ffffff;
-    --accent: #1f6f5c;
-    --accent-soft: #e4f1ec;
-    --warn: #a34a1f;
-    --warn-soft: #fbeee3;
-    --danger: #a3281f;
-    --danger-soft: #fbe6e4;
+    --field: #fbfbfa;
+    --accent: #21705d;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2f0ea;
+    --warn: #9c5321;
+    --warn-soft: #f8ead9;
+    --danger: #a3352a;
+    --danger-soft: #f9e4e1;
     --bubble: #dcf3d9;
-    --mono: "SF Mono", "Consolas", "Menlo", monospace;
+    --shadow: 0 1px 2px rgba(20, 24, 34, 0.05), 0 1px 1px rgba(20, 24, 34, 0.04);
+    --sans: "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "Space Mono", "SF Mono", Consolas, Menlo, monospace;
+    color-scheme: light;
   }
+  [data-theme="dark"] {
+    --ink: #e8eaf0;
+    --ink-soft: #a2aabd;
+    --ink-faint: #737d92;
+    --line: #313846;
+    --line-soft: #232833;
+    --paper: #10131a;
+    --card: #171b24;
+    --field: #1c212b;
+    --accent: #4bb99a;
+    --accent-ink: #0d1712;
+    --accent-soft: #17342c;
+    --warn: #e3a15f;
+    --warn-soft: #33261a;
+    --danger: #e58c81;
+    --danger-soft: #35201e;
+    --bubble: #1f3a26;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color-scheme: dark;
+  }
+
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
     background: var(--paper);
     color: var(--ink);
-    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: var(--sans);
     line-height: 1.5;
+    transition: background .15s ease, color .15s ease;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 100px; }
-  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
-  .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 32px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 24px 100px; }
 
-  section { margin-bottom: 28px; }
+  /* ---------- Barra superior ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .topbar-inner {
+    max-width: 860px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14.5px; }
+  .brand-mark {
+    width: 22px; height: 22px; border-radius: 6px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .brand-mark svg { width: 13px; height: 13px; stroke: var(--accent-ink); }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+  button.round-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  }
+  button.round-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+  button.round-btn svg { width: 16px; height: 16px; }
+
+  .conn-badge {
+    display: flex; align-items: center; gap: 7px;
+    border: 1px solid var(--line); background: var(--card);
+    border-radius: 100px; padding: 6px 12px 6px 9px; cursor: pointer;
+    font-size: 12.5px; color: var(--ink-soft); font-family: inherit;
+  }
+  .conn-badge:hover { border-color: var(--ink-faint); }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+  .conn-dot.connecting { background: var(--warn); animation: pulse 1.1s ease-in-out infinite; }
+  .conn-dot.ok { background: var(--accent); }
+  .conn-dot.bad { background: var(--danger); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+  h1 { font-size: 21px; font-weight: 700; margin: 22px 0 3px; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 30px; max-width: 62ch; }
+
+  section { margin-bottom: 26px; }
   .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 20px 22px;
+    box-shadow: var(--shadow);
   }
   .card + .card { margin-top: 14px; }
-  .card.paused { opacity: .6; }
+  .card.paused { opacity: .55; }
 
-  h2 { font-size: 15px; font-weight: 600; margin: 0 0 14px; }
-  label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+  h2 { font-size: 14.5px; font-weight: 600; margin: 0 0 14px; }
+  label { display: block; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 5px; font-weight: 500; }
+
   input[type=text], input[type=password], input[type=time], textarea, select {
     width: 100%;
     font-size: 14px;
-    padding: 8px 10px;
+    padding: 9px 11px;
     border: 1px solid var(--line);
-    border-radius: 6px;
-    background: #fff;
+    border-radius: 7px;
+    background: var(--field);
     color: var(--ink);
     font-family: inherit;
+    transition: border-color .12s, background .12s;
   }
-  textarea { resize: vertical; min-height: 44px; }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--accent); background: var(--card);
+  }
+  textarea { resize: vertical; min-height: 46px; }
   .row { display: flex; gap: 14px; flex-wrap: wrap; }
   .row > div { flex: 1; min-width: 160px; }
   .field { margin-bottom: 12px; }
-  .field-error { font-size: 12px; color: var(--warn); margin-top: 3px; }
+  .field-error { font-size: 11.5px; color: var(--warn); margin-top: 4px; }
+
+  /* ---------- Paneles editables dentro de la tarjeta de contacto ---------- */
+  .edit-panel {
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 14px;
+    margin-top: 12px;
+  }
+  .edit-panel > label { margin-bottom: 8px; }
+  .edit-panel textarea { background: var(--card); }
 
   button {
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 500;
     padding: 9px 16px;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid var(--line);
-    background: #fff;
+    background: var(--card);
     color: var(--ink);
     cursor: pointer;
+    transition: border-color .12s, background .12s, opacity .12s;
   }
-  button:hover { border-color: var(--ink-soft); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button.primary:hover { background: #17594a; }
-  button.primary:disabled { background: #9fb8b1; border-color: #9fb8b1; cursor: not-allowed; }
-  button.ghost { border-color: transparent; color: var(--ink-soft); padding: 6px 8px; }
+  button:hover { border-color: var(--ink-faint); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  button.primary:hover { opacity: .9; }
+  button.primary:disabled { opacity: .5; cursor: not-allowed; }
   button.icon-btn {
-    padding: 4px 8px; font-size: 12.5px; border-color: transparent; color: var(--ink-soft);
-    background: transparent;
+    width: 28px; height: 28px; padding: 0; border-color: transparent; background: transparent;
+    color: var(--ink-faint); border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
   }
-  button.icon-btn:hover { background: var(--line-soft); color: var(--ink); }
-  button.danger-ghost { border-color: transparent; color: var(--danger); padding: 4px 8px; font-size: 12.5px; }
+  button.icon-btn svg { width: 15px; height: 15px; }
+  button.icon-btn:hover { background: var(--line-soft); color: var(--ink); border-color: transparent; }
+  button.icon-btn.danger:hover { background: var(--danger-soft); color: var(--danger); }
+  button.danger-ghost { border-color: transparent; background: transparent; color: var(--danger); padding: 4px 8px; font-size: 12px; }
+  button.danger-ghost:hover { background: var(--danger-soft); }
 
   .status-pill {
     display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12.5px; padding: 4px 10px; border-radius: 100px;
+    font-size: 12.5px; padding: 5px 11px; border-radius: 100px;
     background: var(--line-soft); color: var(--ink-soft);
   }
   .status-pill.ok { background: var(--accent-soft); color: var(--accent); }
   .status-pill.bad { background: var(--warn-soft); color: var(--warn); }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+  /* ---------- Tarjeta de contacto ---------- */
   .contact-card { position: relative; }
-  .contact-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
-  .contact-head h3 { font-size: 15px; margin: 0; font-weight: 600; }
-  .contact-head .phone { font-size: 12.5px; color: var(--ink-soft); font-family: var(--mono); }
+  .contact-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
   .contact-name-row { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-  .contact-tools { display: flex; align-items: center; gap: 2px; }
-  .contact-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .name-input {
+    font-weight: 600; font-size: 15px; border: 1px solid transparent; background: transparent;
+    padding: 5px 7px; border-radius: 7px;
+  }
+  .name-input:hover { border-color: var(--line); background: var(--field); }
+  .name-input:focus { border-color: var(--accent); background: var(--field); }
+  .contact-tools { display: flex; align-items: center; gap: 1px; flex-shrink: 0; }
+  .contact-side { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-top: 4px; }
 
   .switch { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
-  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
   .switch-track {
     position: absolute; inset: 0; background: var(--line); border-radius: 20px; cursor: pointer; transition: background .15s;
   }
   .switch-track::before {
     content: ''; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px;
-    background: #fff; border-radius: 50%; transition: transform .15s;
+    background: var(--card); border-radius: 50%; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
   }
   .switch input:checked + .switch-track { background: var(--accent); }
   .switch input:checked + .switch-track::before { transform: translateX(15px); }
+  .switch-row { display: flex; align-items: center; gap: 7px; }
   .active-label { font-size: 11.5px; color: var(--ink-soft); }
+  .phone-input {
+    border: 1px solid transparent; background: transparent; text-align: right; font-family: var(--mono);
+    font-size: 12px; color: var(--ink-soft); width: 148px; padding: 4px 7px; border-radius: 6px;
+  }
+  .phone-input:hover { border-color: var(--line); background: var(--field); }
+  .phone-input:focus { border-color: var(--accent); background: var(--field); color: var(--ink); }
 
   .dropzone {
     border: 1.5px dashed var(--line);
     border-radius: 8px;
-    padding: 18px;
+    padding: 16px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--ink-soft);
     cursor: pointer;
     transition: border-color .15s, background .15s;
+    background: var(--card);
   }
   .dropzone.drag { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
   .dropzone input { display: none; }
@@ -130,36 +237,37 @@
   .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
   .file-row {
     display: flex; align-items: center; gap: 10px;
-    font-size: 13px; padding: 6px 10px;
-    background: var(--line-soft); border-radius: 6px;
+    font-size: 13px; padding: 6px 8px;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 7px;
   }
-  .file-row.new { background: var(--accent-soft); }
-  .file-row.remove { background: var(--warn-soft); opacity: .7; }
+  .file-row.new { border-color: var(--accent); background: var(--accent-soft); }
+  .file-row.remove { background: var(--warn-soft); opacity: .7; border-color: transparent; }
   .file-row.remove .file-name { text-decoration: line-through; }
   .file-row.oversize { outline: 1.5px solid var(--danger); }
   .file-thumb {
-    width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0;
-    background: #fff; border: 1px solid var(--line);
+    width: 34px; height: 34px; border-radius: 6px; flex-shrink: 0;
+    background: var(--field); border: 1px solid var(--line);
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 600; color: var(--ink-soft); overflow: hidden;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .02em; color: var(--ink-faint); overflow: hidden; font-family: var(--mono);
   }
   .file-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .file-thumb button { border: none; background: none; padding: 0; font-size: 9.5px; color: var(--accent); cursor: pointer; }
+  .file-thumb button { border: none; background: none; padding: 0; font-size: 9.5px; color: var(--accent); cursor: pointer; font-family: inherit; }
   .file-info { flex: 1; min-width: 0; }
-  .file-name { font-family: var(--mono); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
-  .file-warn { font-size: 11.5px; color: var(--danger); }
-  .empty-note { font-size: 12.5px; color: var(--ink-soft); font-style: italic; margin-top: 8px; }
+  .file-name { font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .file-warn { font-size: 11px; color: var(--danger); }
+  .empty-note { font-size: 12.5px; color: var(--ink-faint); font-style: italic; margin-top: 2px; }
 
   .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
   .day-btn {
-    padding: 8px 0; text-align: center; font-size: 12.5px;
-    border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer;
+    padding: 9px 0; text-align: center; font-size: 12.5px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--ink); cursor: pointer;
   }
-  .day-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .day-btn.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
   #log {
-    font-family: var(--mono); font-size: 12px; background: #14181f; color: #cdd6e3;
-    border-radius: 8px; padding: 14px 16px; max-height: 220px; overflow-y: auto;
+    font-family: var(--mono); font-size: 11.5px; background: #10131a; color: #cdd6e3;
+    border: 1px solid var(--line);
+    border-radius: 9px; padding: 14px 16px; max-height: 220px; overflow-y: auto;
     white-space: pre-wrap; display: none;
   }
   #log.show { display: block; }
@@ -167,72 +275,72 @@
   #log .ok { color: #9fe0c1; }
 
   .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
-  .help { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+  .help { font-size: 12px; color: var(--ink-faint); margin-top: 8px; line-height: 1.55; }
   .help a { color: var(--accent); }
-  .locked-note {
-    font-size: 13px; color: var(--ink-soft); background: var(--line-soft);
-    border-radius: 8px; padding: 14px 16px;
-  }
 
-  .preview-toggle { font-size: 12px; margin: 6px 0 0; }
+  .preview-toggle { font-size: 12px; margin: 8px 0 0; display: inline-block; cursor: pointer; color: var(--accent); text-decoration: none; }
   .bubble-wrap { display: flex; justify-content: flex-end; margin-top: 10px; }
   .bubble {
-    background: var(--bubble); border-radius: 10px 10px 2px 10px; padding: 8px 10px;
+    background: var(--bubble); border-radius: 10px 10px 2px 10px; padding: 9px 11px;
     max-width: 260px; font-size: 13px; color: #1a2e1a;
   }
+  [data-theme="dark"] .bubble { color: #d3ecd6; }
   .bubble-attachment {
-    background: rgba(255,255,255,.6); border-radius: 6px; padding: 8px; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 8px; font-size: 12px;
+    background: rgba(255,255,255,.5); border-radius: 6px; padding: 7px 8px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 7px; font-size: 11.5px;
   }
+  [data-theme="dark"] .bubble-attachment { background: rgba(0,0,0,.2); }
   .bubble-text { white-space: pre-wrap; word-break: break-word; }
   .bubble-meta { font-size: 10.5px; color: #4d6b4d; text-align: right; margin-top: 4px; }
+  [data-theme="dark"] .bubble-meta { color: #8fbf95; }
 
   .token-banner {
-    font-size: 12.5px; padding: 8px 12px; border-radius: 6px; margin-top: 10px;
+    font-size: 12px; padding: 9px 12px; border-radius: 7px; margin-top: 12px;
     background: var(--line-soft); color: var(--ink-soft);
   }
   .token-banner.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* ---------- Modal de conexión ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 18, 24, 0.45);
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 10vh 20px 20px; z-index: 50; backdrop-filter: blur(2px);
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    max-width: 480px; width: 100%; padding: 22px 24px 24px;
+    box-shadow: 0 12px 32px rgba(10, 12, 18, 0.22);
+  }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .modal-head h2 { margin: 0; }
+
+  .add-contact-btn {
+    display: flex; align-items: center; gap: 6px; margin-top: 4px;
+  }
+  .add-contact-btn svg { width: 14px; height: 14px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Programador semanal de WhatsApp</h1>
-  <p class="sub">Arrastra los archivos de cada contacto, ajusta el mensaje y la hora, y sube todo a tu repositorio con un clic.</p>
 
-  <section>
-    <div class="card">
-      <h2>Conexión con GitHub</h2>
-      <div class="row">
-        <div class="field">
-          <label for="gh-owner">Usuario / organización</label>
-          <input type="text" id="gh-owner" placeholder="tu-usuario-github">
-        </div>
-        <div class="field">
-          <label for="gh-repo">Repositorio</label>
-          <input type="text" id="gh-repo" placeholder="whatsapp-weekly-sender">
-        </div>
-        <div class="field">
-          <label for="gh-branch">Rama</label>
-          <input type="text" id="gh-branch" placeholder="main" value="main">
-        </div>
-      </div>
-      <div class="field">
-        <label for="gh-token">Token de acceso personal (fine-grained, permiso Contents: Read and write, solo sobre este repo)</label>
-        <input type="password" id="gh-token" placeholder="github_pat_...">
-      </div>
-      <div class="top-actions">
-        <button class="primary" id="btn-connect">Conectar y cargar</button>
-        <span class="status-pill" id="conn-status"><span class="dot"></span> sin conectar</span>
-      </div>
-      <p class="help">
-        El token solo se guarda en este navegador, en tu computador — nunca se envía a ningún lado excepto a la API de GitHub.
-        ¿No tienes uno? Créalo en
-        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>,
-        elígelo tipo <em>Fine-grained</em>, limitado a este repositorio, con permiso <em>Contents: Read and write</em>.
-      </p>
-      <div class="token-banner" id="token-banner" style="display:none"></div>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M4 20l1.6-4.8A8 8 0 1 1 9 18.6z"/></svg></span>
+      Programador semanal de WhatsApp
     </div>
-  </section>
+    <div class="topbar-actions">
+      <button class="round-btn" id="theme-toggle" title="Cambiar tema" type="button"></button>
+      <button class="conn-badge" id="conn-toggle" type="button" title="Ver conexión con GitHub">
+        <span class="conn-dot" id="conn-dot"></span>
+        <span id="conn-label">Sin conectar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="sub">Arrastra los archivos de cada contacto, ajusta el mensaje y la hora, y sube todo a tu repositorio con un clic.</p>
 
   <section id="section-schedule" style="display:none">
     <div class="card">
@@ -250,7 +358,10 @@
 
   <section id="section-contacts" style="display:none">
     <div id="contacts-container"></div>
-    <button id="btn-add-contact" style="margin-top:4px">+ Agregar contacto</button>
+    <button class="add-contact-btn" id="btn-add-contact" type="button">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+      Agregar contacto
+    </button>
   </section>
 
   <section id="section-save" style="display:none">
@@ -263,9 +374,60 @@
       <div id="log"></div>
     </div>
   </section>
+
+  <section id="section-empty" class="card" style="display:none">
+    <h2>Conecta tu repositorio para empezar</h2>
+    <p class="help" style="margin-top:0">Haz clic en el estado de conexión arriba a la derecha para ingresar los datos de tu repositorio de GitHub.</p>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="conn-modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Conexión con GitHub</h2>
+      <button class="icon-btn" id="conn-modal-close" type="button" title="Cerrar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="gh-owner">Usuario / organización</label>
+        <input type="text" id="gh-owner" placeholder="tu-usuario-github">
+      </div>
+      <div class="field">
+        <label for="gh-repo">Repositorio</label>
+        <input type="text" id="gh-repo" placeholder="whatsapp-weekly-sender">
+      </div>
+    </div>
+    <div class="field">
+      <label for="gh-branch">Rama</label>
+      <input type="text" id="gh-branch" placeholder="main" value="main">
+    </div>
+    <div class="field">
+      <label for="gh-token">Token de acceso personal (fine-grained, permiso Contents: Read and write, solo sobre este repo)</label>
+      <input type="password" id="gh-token" placeholder="github_pat_...">
+    </div>
+    <div class="top-actions" style="margin-top:6px">
+      <button class="primary" id="btn-connect" type="button">Conectar y cargar</button>
+    </div>
+    <p class="help" id="conn-detail"></p>
+    <p class="help">
+      El token solo se guarda en este navegador, en tu computador — nunca se envía a ningún lado excepto a la API de GitHub.
+      ¿No tienes uno? Créalo en
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>,
+      elígelo tipo <em>Fine-grained</em>, limitado a este repositorio, con permiso <em>Contents: Read and write</em>.
+    </p>
+    <div class="token-banner" id="token-banner" style="display:none"></div>
+  </div>
 </div>
 
 <script>
+const ICONS = {
+  trash: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.5h9M6.5 4.5V3a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.5M6.5 7.5v4M9.5 7.5v4M4.5 4.5l.6 8a1 1 0 0 0 1 .9h3.8a1 1 0 0 0 1-.9l.6-8"/></svg>',
+  sun: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.4M8 13.1v1.4M14.5 8h-1.4M2.9 8H1.5M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1"/></svg>',
+  moon: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 9.5A5.8 5.8 0 1 1 6.5 2.5a4.6 4.6 0 0 0 7 7z"/></svg>',
+};
+
 const state = {
   owner: '', repo: '', branch: 'main', token: '',
   contacts: [],          // [{name, phone, message, folder, active}]
@@ -311,24 +473,43 @@ function log(msg, kind) {
   box.scrollTop = box.scrollHeight;
 }
 
-function setConnStatus(ok, text) {
-  const pill = document.getElementById('conn-status');
-  pill.className = 'status-pill ' + (ok ? 'ok' : 'bad');
-  pill.innerHTML = '<span class="dot"></span> ' + text;
-}
+// ---------- Tema (claro/oscuro) ----------
 
-function markDirty() {
-  state.dirty = true;
-  const pill = document.getElementById('save-status');
-  pill.className = 'status-pill bad';
-  pill.innerHTML = '<span class="dot"></span> cambios sin subir';
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-toggle').innerHTML = theme === 'dark' ? ICONS.moon : ICONS.sun;
+  document.getElementById('theme-toggle').title = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  localStorage.setItem('wa-scheduler-theme', theme);
 }
+function initTheme() {
+  const saved = localStorage.getItem('wa-scheduler-theme');
+  const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(theme);
+}
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
 
-function clearDirty() {
-  state.dirty = false;
-  const pill = document.getElementById('save-status');
-  pill.className = 'status-pill ok';
-  pill.innerHTML = '<span class="dot"></span> todo subido';
+// ---------- Modal de conexión ----------
+
+function openConnModal() { document.getElementById('conn-modal-backdrop').classList.add('show'); }
+function closeConnModal() { document.getElementById('conn-modal-backdrop').classList.remove('show'); }
+document.getElementById('conn-toggle').addEventListener('click', openConnModal);
+document.getElementById('conn-modal-close').addEventListener('click', closeConnModal);
+document.getElementById('conn-modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'conn-modal-backdrop') closeConnModal();
+});
+
+function setConnStatus(status, text) {
+  const dot = document.getElementById('conn-dot');
+  const labelEl = document.getElementById('conn-label');
+  const detail = document.getElementById('conn-detail');
+  const labels = { idle: 'Sin conectar', connecting: 'Conectando…', ok: 'Conectado', bad: 'Error' };
+  dot.className = 'conn-dot ' + status;
+  labelEl.textContent = status === 'ok' && text ? text.replace('conectado a ', '') : (labels[status] || status);
+  detail.textContent = text || '';
+  document.getElementById('conn-toggle').title = text || labels[status] || '';
 }
 
 // ---------- GitHub API helpers ----------
@@ -404,14 +585,14 @@ async function loadFromGithub() {
   const token = document.getElementById('gh-token').value.trim();
 
   if (!owner || !repo || !token) {
-    setConnStatus(false, 'faltan datos');
-    return;
+    setConnStatus('bad', 'faltan datos');
+    return false;
   }
 
   state.owner = owner; state.repo = repo; state.branch = branch; state.token = token;
   localStorage.setItem('wa-scheduler-config', JSON.stringify({ owner, repo, branch, token }));
 
-  setConnStatus(false, 'conectando…');
+  setConnStatus('connecting', 'conectando…');
   try {
     const ref = await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`);
     const commit = await gh(`/repos/${owner}/${repo}/git/commits/${ref.object.sha}`);
@@ -447,16 +628,33 @@ async function loadFromGithub() {
 
     state.stagedNew = {}; state.stagedRemove = {};
 
-    setConnStatus(true, `conectado a ${owner}/${repo}@${branch}`);
+    setConnStatus('ok', `conectado a ${owner}/${repo}@${branch}`);
+    document.getElementById('section-empty').style.display = 'none';
     document.getElementById('section-schedule').style.display = '';
     document.getElementById('section-contacts').style.display = '';
     document.getElementById('section-save').style.display = '';
     clearDirty();
     renderContacts();
+    closeConnModal();
+    return true;
   } catch (err) {
-    setConnStatus(false, 'error de conexión');
+    setConnStatus('bad', 'error de conexión: ' + err.message);
     log('Error al conectar: ' + err.message, 'err');
+    return false;
   }
+}
+
+function markDirty() {
+  state.dirty = true;
+  const pill = document.getElementById('save-status');
+  pill.className = 'status-pill bad';
+  pill.innerHTML = '<span class="dot"></span> cambios sin subir';
+}
+function clearDirty() {
+  state.dirty = false;
+  const pill = document.getElementById('save-status');
+  pill.className = 'status-pill ok';
+  pill.innerHTML = '<span class="dot"></span> todo subido';
 }
 
 // ---------- Schedule (day + time -> cron) ----------
@@ -550,26 +748,20 @@ function contactCard(contact) {
   const head = el('div', 'contact-head');
 
   const nameRow = el('div', 'contact-name-row');
-  const nameInput = el('input');
-  nameInput.type = 'text'; nameInput.value = contact.name; nameInput.style.fontWeight = '600';
-  nameInput.style.border = 'none'; nameInput.style.padding = '2px 0'; nameInput.style.fontSize = '15px';
+  const nameInput = el('input', 'name-input');
+  nameInput.type = 'text'; nameInput.value = contact.name;
   nameInput.addEventListener('input', () => { contact.name = nameInput.value; markDirty(); });
   nameRow.appendChild(nameInput);
   head.appendChild(nameRow);
 
   const tools = el('div', 'contact-tools');
-  const upBtn = el('button', 'icon-btn', '↑'); upBtn.title = 'Mover arriba';
-  const downBtn = el('button', 'icon-btn', '↓'); downBtn.title = 'Mover abajo';
-  const dupBtn = el('button', 'icon-btn', 'Duplicar');
-  const delBtn = el('button', 'icon-btn', 'Eliminar'); delBtn.style.color = 'var(--danger)';
-  upBtn.addEventListener('click', () => moveContact(contact, -1));
-  downBtn.addEventListener('click', () => moveContact(contact, 1));
-  dupBtn.addEventListener('click', () => duplicateContact(contact));
+  const delBtn = el('button', 'icon-btn danger', ICONS.trash); delBtn.type = 'button'; delBtn.title = 'Eliminar';
   delBtn.addEventListener('click', () => deleteContact(contact));
-  [upBtn, downBtn, dupBtn, delBtn].forEach(b => tools.appendChild(b));
+  tools.appendChild(delBtn);
   head.appendChild(tools);
 
   const side = el('div', 'contact-side');
+  const switchRow = el('div', 'switch-row');
   const switchWrap = el('label', 'switch');
   const cb = el('input'); cb.type = 'checkbox'; cb.checked = contact.active !== false;
   cb.addEventListener('change', () => {
@@ -580,13 +772,13 @@ function contactCard(contact) {
   });
   switchWrap.appendChild(cb);
   switchWrap.appendChild(el('span', 'switch-track'));
-  side.appendChild(switchWrap);
   const activeLabel = el('span', 'active-label', contact.active !== false ? 'Activo' : 'Pausado');
-  side.appendChild(activeLabel);
-  const phoneInput = el('input');
+  switchRow.appendChild(switchWrap);
+  switchRow.appendChild(activeLabel);
+  side.appendChild(switchRow);
+
+  const phoneInput = el('input', 'phone-input');
   phoneInput.type = 'text'; phoneInput.value = contact.phone;
-  phoneInput.style.border = 'none'; phoneInput.style.textAlign = 'right'; phoneInput.style.fontFamily = 'var(--mono)';
-  phoneInput.style.fontSize = '12.5px'; phoneInput.style.color = 'var(--ink-soft)'; phoneInput.style.width = '140px';
   const phoneErr = el('div', 'field-error');
   function validatePhone() {
     const ok = /^\d{10,15}$/.test(phoneInput.value.trim());
@@ -601,15 +793,14 @@ function contactCard(contact) {
 
   card.appendChild(head);
 
-  const msgField = el('div', 'field');
-  msgField.appendChild(el('label', '', 'Mensaje de esta semana'));
+  const msgPanel = el('div', 'edit-panel');
+  msgPanel.appendChild(el('label', '', 'Mensaje de esta semana'));
   const textarea = el('textarea');
   textarea.value = contact.message || '';
-  card.appendChild(msgField);
-  msgField.appendChild(textarea);
+  msgPanel.appendChild(textarea);
 
   const previewToggle = el('a', 'preview-toggle', 'Ver vista previa del mensaje');
-  previewToggle.href = '#'; previewToggle.style.cursor = 'pointer'; previewToggle.style.color = 'var(--accent)';
+  previewToggle.href = '#';
   const bubbleWrap = el('div', 'bubble-wrap'); bubbleWrap.style.display = 'none';
   const bubble = el('div', 'bubble');
   bubbleWrap.appendChild(bubble);
@@ -624,10 +815,12 @@ function contactCard(contact) {
     contact.message = textarea.value; markDirty();
     if (bubbleWrap.style.display !== 'none') renderBubble(contact, bubble);
   });
-  msgField.appendChild(previewToggle);
-  msgField.appendChild(bubbleWrap);
+  msgPanel.appendChild(previewToggle);
+  msgPanel.appendChild(bubbleWrap);
+  card.appendChild(msgPanel);
 
-  card.appendChild(el('label', '', 'Fotos / videos / documentos de esta semana'));
+  const filesPanel = el('div', 'edit-panel');
+  filesPanel.appendChild(el('label', '', 'Fotos / videos / documentos de esta semana'));
 
   const dz = el('div', 'dropzone', 'Arrastra archivos aquí, o haz clic para elegir');
   const fileInput = el('input');
@@ -643,8 +836,9 @@ function contactCard(contact) {
 
   dz.addEventListener('drop', e => addFiles(contact, e.dataTransfer.files, fileList, bubbleWrap, bubble));
   fileInput.addEventListener('change', () => addFiles(contact, fileInput.files, fileList, bubbleWrap, bubble));
-  card.appendChild(dz);
-  card.appendChild(fileList);
+  filesPanel.appendChild(dz);
+  filesPanel.appendChild(fileList);
+  card.appendChild(filesPanel);
   renderFileList(contact, fileList, bubbleWrap, bubble);
 
   return card;
@@ -755,37 +949,6 @@ function renderContacts() {
   const container = document.getElementById('contacts-container');
   container.innerHTML = '';
   state.contacts.forEach(c => container.appendChild(contactCard(c)));
-}
-
-function moveContact(contact, delta) {
-  const idx = state.contacts.indexOf(contact);
-  const newIdx = idx + delta;
-  if (newIdx < 0 || newIdx >= state.contacts.length) return;
-  state.contacts.splice(idx, 1);
-  state.contacts.splice(newIdx, 0, contact);
-  markDirty();
-  renderContacts();
-}
-
-function slug(name) {
-  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'contacto';
-}
-
-function duplicateContact(contact) {
-  let base = slug(contact.name) + '_copia';
-  let folder = 'attachments/' + base;
-  let n = 2;
-  while (state.contacts.some(c => c.folder === folder)) {
-    folder = 'attachments/' + base + '_' + n; n++;
-  }
-  const copy = { ...contact, name: contact.name + ' (copia)', folder };
-  const idx = state.contacts.indexOf(contact);
-  state.contacts.splice(idx + 1, 0, copy);
-  state.existingFiles[folder] = [];
-  log(`Se duplicó "${contact.name}" como "${copy.name}". Los archivos no se duplican — agrégalos de nuevo si hace falta.`);
-  markDirty();
-  renderContacts();
 }
 
 function deleteContact(contact) {
@@ -902,20 +1065,30 @@ async function saveToGithub() {
 document.getElementById('btn-save').addEventListener('click', saveToGithub);
 document.getElementById('btn-connect').addEventListener('click', loadFromGithub);
 
-// ---------- Restaurar configuración guardada ----------
+// ---------- Arranque ----------
 
-(function restore() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('wa-scheduler-config') || 'null');
-    if (saved) {
-      document.getElementById('gh-owner').value = saved.owner || '';
-      document.getElementById('gh-repo').value = saved.repo || '';
-      document.getElementById('gh-branch').value = saved.branch || 'main';
-      document.getElementById('gh-token').value = saved.token || '';
-    }
-  } catch (e) { /* ignore */ }
+(async function start() {
+  initTheme();
   renderDayGrid();
   updateCronPreview();
+
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('wa-scheduler-config') || 'null'); } catch (e) { /* ignore */ }
+
+  if (saved) {
+    document.getElementById('gh-owner').value = saved.owner || '';
+    document.getElementById('gh-repo').value = saved.repo || '';
+    document.getElementById('gh-branch').value = saved.branch || 'main';
+    document.getElementById('gh-token').value = saved.token || '';
+  }
+
+  if (saved && saved.owner && saved.repo && saved.token) {
+    const ok = await loadFromGithub();
+    if (!ok) openConnModal();
+  } else {
+    document.getElementById('section-empty').style.display = '';
+    openConnModal();
+  }
 })();
 </script>
 </body>
